@@ -144,7 +144,7 @@ def read_npz(path):
             try:
                 arrays[info.filename[:-4]] = parse_npy(archive.read(info))
             except ValueError as error:
-                raise ValueError("%s: %s" % (info.filename, error))
+                raise ValueError("%s: %s" % (info.filename, error)) from error
     return arrays
 
 
@@ -193,7 +193,7 @@ def gif_frames(path):
             else:
                 raise ValueError("GIF 블록 0x%02x를 모릅니다" % block)
     except IndexError:
-        raise ValueError("GIF가 끝 표시 없이 끝납니다")
+        raise ValueError("GIF가 끝 표시 없이 끝납니다") from None
 
 
 def is_png(path):
@@ -258,7 +258,7 @@ class Analyzer:
             self.proc.stdin.flush()
         except OSError:
             self.fail("표준 입력에 쓰지 못했습니다. 분석 프로그램이 끝났습니다")
-            raise Stop()
+            raise Stop() from None
 
     def next_line(self, timeout):
         """다음 줄입니다. 출력이 끝나면 None, timeout초 안에 없으면 queue.Empty입니다."""
@@ -429,7 +429,7 @@ class Checker:
                 text = analyzer.next_line(remaining)
             except queue.Empty:
                 self.fail(timeout_message)
-                raise Stop()
+                raise Stop() from None
             if text is None:
                 self.fail("분석 프로그램이 끝났습니다(종료 코드 %s)" % analyzer.proc.wait())
                 raise Stop()
