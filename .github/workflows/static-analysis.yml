@@ -1,8 +1,14 @@
 name: static-analysis
 
+# 파이썬 파일, ruff 설정, 이 워크플로가 바뀔 때만 돌립니다.
 on:
   push:
+    paths: &ruff_paths
+      - "**/*.py"
+      - pyproject.toml
+      - .github/workflows/static-analysis.yml
   pull_request:
+    paths: *ruff_paths
 
 permissions:
   contents: read
