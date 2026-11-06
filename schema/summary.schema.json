@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "요약 <name>_summary.json",
+  "description": "숫자 자리에 NaN, Infinity, -Infinity가 올 수 있습니다. 여기 없는 키는 분석 프로그램이 더 쓸 수 있고 클라이언트 앱은 무시합니다.",
+  "type": "object",
+  "required": [
+    "pi_left", "pi_right", "pi_ratio_left_right", "per_side", "template_corr_lr", "n_windows", "window_s",
+    "window_stride_s", "fps", "n_frames", "n_light_ref_min", "foot_cells", "foot_mask", "classification",
+    "cuff_level", "qc", "dfr"
+  ],
+  "properties": {
+    "pi_left": {"type": "number"},
+    "pi_right": {"type": "number"},
+    "pi_ratio_left_right": {"type": "number"},
+    "per_side": {
+      "type": "object",
+      "required": ["left", "right"],
+      "properties": {
+        "left": {"$ref": "#/$defs/regions"},
+        "right": {"$ref": "#/$defs/regions"}
+      }
+    },
+    "template_corr_lr": {"type": "number"},
+    "n_windows": {"type": "integer", "minimum": 1},
+    "window_s": {"type": "number", "exclusiveMinimum": 0},
+    "window_stride_s": {"type": "number", "exclusiveMinimum": 0},
+    "fps": {"type": "number", "exclusiveMinimum": 0},
+    "n_frames": {"type": "integer", "minimum": 1},
+    "n_light_ref_min": {"type": "integer", "minimum": 0},
+    "foot_cells": {
+      "type": "object",
+      "required": ["used", "common"],
+      "properties": {
+        "used": {"type": "integer", "minimum": 0},
+        "common": {"type": "integer", "minimum": 0}
+      }
+    },
+    "foot_mask": {
+      "type": "object",
+      "required": ["left", "right"],
+      "properties": {
+        "left": {"$ref": "#/$defs/foot_mask"},
+        "right": {"$ref": "#/$defs/foot_mask"}
+      }
+    },
+    "classification": {"type": "null"},
+    "cuff_level": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/cuff_level"}]},
+    "qc": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/qc"}]},
+    "dfr": {"$ref": "#/$defs/dfr"}
+  },
+  "$defs": {
+    "regions": {
+      "type": "object",
+      "required": ["pi_toes", "pi_fore", "pi_mid", "pi_heel"],
+      "properties": {
+        "pi_toes": {"type": "number"},
+        "pi_fore": {"type": "number"},
+        "pi_mid": {"type": "number"},
+        "pi_heel": {"type": "number"}
+      }
+    },
+    "foot_mask": {
+      "type": "object",
+      "required": ["method", "det_score", "sam_iou", "cells"],
+      "properties": {
+        "method": {"type": "string"},
+        "det_score": {"type": ["number", "null"]},
+        "sam_iou": {"type": ["number", "null"]},
+        "cells": {"type": "integer", "minimum": 0}
+      }
+    },
+    "state": {"enum": ["0", "V", "D", "O"]},
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "cuff_level": {
+      "type": "object",
+      "required": [
+        "applicable", "level", "level_ko", "level_if_quality_ignored", "pad", "pad_probability",
+        "state_probabilities", "quality_ok", "rule", "features", "quality_snr_db", "setting"
+      ],
+      "properties": {
+        "applicable": {"type": "boolean"},
+        "level": {"enum": ["0", "V", "D", "O", null]},
+        "level_ko": {"type": ["string", "null"]},
+        "level_if_quality_ignored": {"$ref": "#/$defs/state"},
+        "pad": {"type": ["boolean", "null"]},
+        "pad_probability": {"$ref": "#/$defs/probability"},
+        "state_probabilities": {
+          "type": "object",
+          "required": ["0", "V", "D", "O"],
+          "properties": {
+            "0": {"$ref": "#/$defs/probability"},
+            "V": {"$ref": "#/$defs/probability"},
+            "D": {"$ref": "#/$defs/probability"},
+            "O": {"$ref": "#/$defs/probability"}
+          }
+        },
+        "quality_ok": {"type": "boolean"},
+        "rule": {"type": "string"},
+        "features": {
+          "type": "object",
+          "required": ["hi_snr1_30"],
+          "properties": {"hi_snr1_30": {"type": "number"}}
+        },
+        "quality_snr_db": {"type": "number"},
+        "setting": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/setting"}]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"quality_ok": {"const": false}}},
+          "then": {"properties": {"level": {"const": null}, "level_ko": {"const": null}, "pad": {"const": null}}},
+          "else": {"properties": {"level": {"$ref": "#/$defs/state"}, "level_ko": {"type": "string"}, "pad": {"type": "boolean"}}}
+        },
+        {
+          "if": {"properties": {"level": {"enum": ["D", "O"]}}},
+          "then": {"properties": {"pad": {"const": true}}}
+        },
+        {
+          "if": {"properties": {"level": {"enum": ["0", "V"]}}},
+          "then": {"properties": {"pad": {"const": false}}}
+        },
+        {
+          "if": {"properties": {"applicable": {"const": true}}},
+          "then": {"properties": {"quality_ok": {"const": true}, "setting": {"type": "object"}}}
+        }
+      ]
+    },
+    "setting": {
+      "type": "object",
+      "required": ["mode", "exposure_step", "gain"],
+      "properties": {
+        "mode": {"type": ["string", "null"]},
+        "exposure_step": {"type": ["integer", "null"]},
+        "gain": {"type": ["number", "null"]}
+      }
+    },
+    "qc": {
+      "type": "object",
+      "required": ["status", "status_ko", "action_ko", "items", "thermal_contrast"],
+      "properties": {
+        "status": {"enum": ["ok", "check", "retake"]},
+        "status_ko": {"type": "string"},
+        "action_ko": {"type": "string"},
+        "items": {"type": "array", "items": {"$ref": "#/$defs/qc_item"}},
+        "thermal_contrast": {
+          "anyOf": [
+            {"type": "null"},
+            {"type": "object", "properties": {"left": {"type": "number"}, "right": {"type": "number"}}}
+          ]
+        }
+      }
+    },
+    "qc_item": {
+      "type": "object",
+      "required": ["code", "name_ko", "severity", "value", "unit", "threshold", "message_ko", "action_ko", "reason"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "name_ko": {"type": "string"},
+        "severity": {"enum": ["ok", "warn", "fail", "na"]},
+        "value": {"type": ["string", "number", "null"]},
+        "unit": {"type": "string"},
+        "threshold": {"type": "string"},
+        "message_ko": {"type": "string"},
+        "action_ko": {"type": "string"},
+        "reason": {"enum": ["equipment", "subject", "posture", "other", null]}
+      }
+    },
+    "dfr": {
+      "type": "object",
+      "required": ["api_version", "worker_version", "variant", "upstream_commit", "presegment", "prestream"],
+      "properties": {
+        "api_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "worker_version": {"type": "string", "minLength": 1},
+        "variant": {"type": "string", "minLength": 1},
+        "upstream_commit": {"type": ["string", "null"]},
+        "presegment": {
+          "type": "object",
+          "required": ["enabled"],
+          "properties": {"enabled": {"type": "boolean"}},
+          "if": {"properties": {"enabled": {"const": true}}},
+          "then": {
+            "required": ["reason"],
+            "properties": {
+              "reason": {
+                "enum": [null, "model_not_loaded", "first_frame_unreadable", "not_requested", "first_frame_mismatch",
+                         "error"]
+              }
+            }
+          }
+        },
+        "prestream": {
+          "type": "object",
+          "required": ["enabled"],
+          "properties": {"enabled": {"type": "boolean"}},
+          "if": {"properties": {"enabled": {"const": true}}},
+          "then": {
+            "required": ["used", "reason"],
+            "properties": {
+              "used": {"type": "boolean"},
+              "reason": {
+                "enum": [null, "not_started", "file_not_created", "open_failed", "not_30fps", "first_frame_unreadable",
+                         "no_presegment", "cancelled", "frame_count_mismatch", "verify_failed", "error"]
+              }
+            }
+          }
+        },
+        "timing": {"type": "object"}
+      }
+    }
+  }
+}

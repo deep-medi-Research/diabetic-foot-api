@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "[dfr] figures 줄의 JSON",
+  "type": "object",
+  "required": ["ok", "error", "seconds"],
+  "properties": {
+    "ok": {"type": "boolean"},
+    "error": {"type": "string"},
+    "seconds": {"type": "number", "minimum": 0}
+  },
+  "if": {"properties": {"ok": {"const": false}}},
+  "then": {"properties": {"error": {"minLength": 1}}}
+}

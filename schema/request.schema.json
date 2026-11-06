@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "클라이언트 앱이 표준 입력에 쓰는 줄",
+  "description": "presegment가 true이면 미리 분할 요청, 아니고 preload가 true이면 미리 올리기 요청, 둘 다 아니면 분석 요청입니다.",
+  "type": "object",
+  "if": {"required": ["presegment"], "properties": {"presegment": {"const": true}}},
+  "then": {"$ref": "#/$defs/presegment"},
+  "else": {
+    "if": {"required": ["preload"], "properties": {"preload": {"const": true}}},
+    "then": {"$ref": "#/$defs/preload"},
+    "else": {"$ref": "#/$defs/analysis"}
+  },
+  "$defs": {
+    "preload": {
+      "type": "object",
+      "required": ["preload"],
+      "properties": {"preload": {"const": true}}
+    },
+    "presegment": {
+      "type": "object",
+      "required": ["presegment", "left_video", "right_video"],
+      "properties": {
+        "presegment": {"const": true},
+        "left_video": {"type": "string", "minLength": 1},
+        "right_video": {"type": "string", "minLength": 1}
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "required": ["rec_dir", "output"],
+      "properties": {
+        "rec_dir": {"type": "string", "minLength": 1},
+        "output": {"type": "string", "minLength": 1},
+        "left_video": {"type": "string", "minLength": 1},
+        "right_video": {"type": "string", "minLength": 1},
+        "left_frames": {"type": "integer", "minimum": 1},
+        "right_frames": {"type": "integer", "minimum": 1},
+        "name": {"type": "string"},
+        "cuff_side": {"enum": ["left", "right", "none", ""]},
+        "template": {"enum": ["v106w", "pos"]},
+        "classify": {"type": "boolean"},
+        "pad_classifier": {"type": "boolean"},
+        "gif": {"type": "boolean"},
+        "defer_figures": {"type": "boolean"},
+        "preload": {"const": false},
+        "presegment": {"const": false}
+      },
+      "dependentRequired": {
+        "left_video": ["right_video"],
+        "right_video": ["left_video"]
+      }
+    }
+  }
+}
