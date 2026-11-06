@@ -205,8 +205,11 @@ def k_all_of(v, schema, rule, value, path, out):
 def k_any_of(v, schema, rule, value, path, out):
     results = [v.branch(sub, value, path) for sub in rule]
     if all(results):
-        # 어느 경우에도 맞지 않으면 어긴 규칙이 가장 적은 경우의 문장을 보입니다.
-        out.extend(min(results, key=len))
+        # 어느 경우에도 맞지 않으면 값의 형식이 맞는 경우 가운데 어긴 규칙이 가장 적은 경우의 문장을 보입니다.
+        # null 또는 객체인 키에 틀린 객체가 오면 "null이어야 합니다" 대신 객체 안의 위반을 보이기 위함입니다.
+        type_only = [r for r in results if len(r) == 1 and r[0].startswith(path + ": ") and "형식이어야" in r[0]]
+        deeper = [r for r in results if r not in type_only]
+        out.extend(min(deeper or results, key=len))
 
 
 def k_if(v, schema, rule, value, path, out):

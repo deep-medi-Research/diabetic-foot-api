@@ -1,4 +1,4 @@
-"""분석 프로그램이 이 저장소의 API를 따르는지 실제로 띄워 확인합니다.
+"""분석 프로그램을 실제로 띄워 이 저장소의 API 규칙을 확인합니다.
 
     python conformance/check_analyzer.py --analyzer "<명령>" --analyzer-dir <분석 프로그램 폴더> \\
         --variant <판> --recording <촬영 폴더>
@@ -614,7 +614,7 @@ def make_recording(root):
 
 
 def client_check_test(fake, fake_dir):
-    """가짜 분석 프로그램이 API를 어긴 요청에 어긴 키를 적은 실패 완료 줄을 찍고 0이 아닌 종료 코드로 끝나는지 봅니다."""
+    """가짜 분석 프로그램의 요청 확인입니다. API를 어긴 요청에는 어긴 키를 적은 실패 완료 줄과 0이 아닌 종료 코드가 나와야 합니다."""
     problems = []
     analyzer = Analyzer([sys.executable, fake] + LAUNCH_ARGS + ["--variant", "fake"], fake_dir, problems.append)
     try:
@@ -646,11 +646,11 @@ def self_test():
     work = tempfile.mkdtemp(prefix="api-self-test-")
     try:
         rec = make_recording(work)
-        print("== 가짜 분석 프로그램이 API %s 규칙을 지키는지 확인합니다" % API_VERSION, flush=True)
+        print("== 가짜 분석 프로그램으로 API %s 규칙 확인" % API_VERSION, flush=True)
         violations, _ = check(command, fake_dir, "fake", rec, os.path.join(work, "pass"))
         problems += ["가짜 분석 프로그램의 위반: " + v for v in violations]
 
-        print("== worker_version을 뺀 가짜 분석 프로그램에서 위반을 찾는지 확인합니다", flush=True)
+        print("== worker_version을 뺀 가짜 분석 프로그램으로 위반 찾기 확인", flush=True)
         os.environ["FAKE_ANALYSIS_DROP"] = "worker_version"
         try:
             violations, _ = check(command, fake_dir, "fake", rec, os.path.join(work, "drop"))
@@ -662,7 +662,7 @@ def self_test():
             problems.append("요약 dfr에 worker_version이 없는 것을 찾지 못했습니다")
         problems += ["worker_version과 관계없는 위반: " + v for v in violations if "worker_version" not in v]
 
-        print("== 가짜 분석 프로그램이 API를 어긴 요청에서 끝나는지 확인합니다", flush=True)
+        print("== API를 어긴 요청에서 가짜 분석 프로그램의 종료 확인", flush=True)
         problems += client_check_test(fake, fake_dir)
     finally:
         shutil.rmtree(work, ignore_errors=True)
@@ -685,7 +685,7 @@ def split_command(text):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="분석 프로그램이 API %s 규칙을 지키는지 확인합니다" % API_VERSION)
+    parser = argparse.ArgumentParser(description="분석 프로그램을 띄워 API %s 규칙을 확인합니다" % API_VERSION)
     parser.add_argument("--analyzer", help='분석 프로그램 명령입니다. 예: "python entry.py"')
     parser.add_argument("--analyzer-dir", default=".", help="분석 프로그램 폴더입니다. 명령의 작업 폴더이고 variants/가 있습니다")
     parser.add_argument("--variant", help="확인할 판 이름입니다")
@@ -693,6 +693,9 @@ def main(argv=None):
     parser.add_argument("--work", help="결과 파일을 남길 폴더입니다. 주지 않으면 임시 폴더를 쓰고 지웁니다")
     parser.add_argument("--self-test", action="store_true", help="가짜 분석 프로그램으로 이 도구를 확인합니다")
     args = parser.parse_args(argv)
+    # Windows에서 파이프로 받는 출력의 기본 인코딩은 코드 페이지라 한글 문장을 쓰지 못합니다.
+    for stream in (sys.stdout, sys.stderr):
+        stream.reconfigure(encoding="utf-8", errors="replace")
     if args.self_test:
         return self_test()
     if not (args.analyzer and args.variant and args.recording):

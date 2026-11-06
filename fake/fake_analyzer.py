@@ -376,7 +376,7 @@ class Figures:
         )
 
     def map_frame(self, window):
-        # 아래 막대 길이가 (창 번호 + 1) / 창 수라, 결과 창이 어느 장을 보이는지 눈으로 알 수 있습니다.
+        # 아래 막대 길이가 (창 번호 + 1) / 창 수입니다. 결과 창에 보이는 장의 창 번호를 막대 길이로 읽습니다.
         image = draw_feet(self._window_color(window), BAR_HEIGHT)
         inner = image.width - 2 * MARGIN
         top = MARGIN + FOOT_HEIGHT + 4
@@ -612,7 +612,7 @@ class Worker:
         self.done(problem)
 
     def handle(self, text):
-        # 줄 앞의 BOM(U+FEFF)은 떼지 않습니다. 실제 분석 프로그램(json.loads)도 BOM이 붙은 줄을 읽지 못합니다.
+        # 줄 앞의 BOM(U+FEFF)은 떼지 않습니다. 실제 분석 프로그램(json.loads)도 BOM으로 시작하는 줄을 읽지 못합니다.
         try:
             request = json.loads(text)
         except ValueError as error:
