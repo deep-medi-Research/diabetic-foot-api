@@ -19,6 +19,7 @@
 | --- | --- |
 | `docs/analysis-api.md` | API 문서(규칙의 원본) |
 | `API_VERSION` | 지금 API 버전(`1.0.0`) |
+| `CHANGELOG.md` | 버전별 변경 |
 | `schema/` | 요청 줄, `[dfr]` 줄, 요약, `VARIANT.json`의 JSON Schema(draft 2020-12) |
 | `conformance/check_analyzer.py` | 분석 프로그램이 API를 지키는지 확인하는 도구 |
 | `fake/fake_analyzer.py` | API대로 답하는 가짜 분석 프로그램 |
@@ -78,6 +79,10 @@ API 버전은 `MAJOR.MINOR.PATCH`이고, `API_VERSION` 파일과 git 태그 `v<�
 | 옛 버전을 따르는 쪽이 깨짐 | MAJOR |
 | 선택 키, 줄 종류, 이유 코드 더하기 | MINOR |
 | 뜻이 같은 문서 고침 | PATCH |
+
+- 변경 기록: 버전별 변경은 [`CHANGELOG.md`](CHANGELOG.md)에 있고 형식은 Keep a Changelog 1.1.0입니다. 태그를 달 때 `[Unreleased]`를 그 버전의 절로 바꿉니다.
+- 올리지 않는 변경: README, 그림, CI만 바꾸면 버전을 올리지 않습니다.
+- 태그: 한 번 단 태그는 옮기지 않습니다. 클라이언트 앱과 분석 프로그램이 태그를 고정하므로, 고칠 것이 생기면 새 버전으로 태그를 답니다.
 
 ## 그림 원본
 
