@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Analysis API flow</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --band: #e6e8ef;
+    --ink: #111111;
+    --sub: #4a5068;
+    --wire: #8791ad;
+    --dot: #a3aac0;
+    --client: #3ddc91;
+    --client-ink: #0b2a1a;
+    --analyzer: #2348ff;
+    --file: #000000;
+  }
+  html, body { margin: 0; background: var(--bg); }
+  body { width: 1280px; height: 1040px; font-family: "Pretendard", sans-serif; }
+  svg { display: block; }
+  .band { fill: var(--band); }
+  .band-label { font-size: 17px; font-weight: 600; fill: var(--ink); }
+  .group { fill: #fff; stroke: var(--dot); stroke-width: 2; stroke-dasharray: 2 5; stroke-linecap: round; }
+  .group-label { font-size: 17px; font-weight: 600; fill: var(--ink); }
+  .client { fill: var(--client); }
+  .analyzer { fill: var(--analyzer); }
+  .file { fill: var(--file); }
+  .t-client { font-size: 19px; font-weight: 600; fill: var(--client-ink); }
+  .t-light { font-size: 19px; font-weight: 600; fill: #fff; }
+  .s-client { font-size: 14px; fill: var(--client-ink); opacity: 0.8; }
+  .s-light { font-size: 14px; fill: #fff; opacity: 0.8; }
+  .life { stroke: var(--wire); stroke-width: 2; }
+  .req { fill: none; stroke: var(--ink); stroke-width: 2; }
+  .out { fill: none; stroke: var(--wire); stroke-width: 2; stroke-dasharray: 6 5; }
+  .msg { font-family: "SF Mono", Menlo, monospace; font-size: 14px; fill: var(--ink); }
+  .msg-sub { font-family: "SF Mono", Menlo, monospace; font-size: 14px; fill: var(--sub); }
+  .chip { font-family: "SF Mono", Menlo, monospace; font-size: 14px; fill: #fff; }
+  .title-s { font-size: 15px; font-weight: 500; letter-spacing: 0.3em; fill: var(--ink); }
+  .title-l { font-size: 44px; font-weight: 600; letter-spacing: -0.03em; fill: var(--ink); }
+  .legend { font-size: 15px; fill: var(--sub); }
+</style>
+</head>
+<body>
+<svg width="1280" height="1040" viewBox="0 0 1280 1040" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="req" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#111111"/>
+    </marker>
+    <marker id="out" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8791ad"/>
+    </marker>
+  </defs>
+
+  <text class="title-s" x="170" y="72">DIABETIC FOOT</text>
+  <text class="title-l" x="168" y="126">Analysis API</text>
+
+  <rect class="band" x="170" y="262" width="940" height="196" rx="16"/>
+  <text class="band-label" x="196" y="296">Startup</text>
+  <rect class="band" x="170" y="472" width="940" height="124" rx="16"/>
+  <text class="band-label" x="196" y="506">Recording</text>
+  <rect class="band" x="170" y="610" width="940" height="236" rx="16"/>
+  <text class="band-label" x="196" y="644">After saving</text>
+
+  <path class="life" d="M400 240 V846"/>
+  <path class="life" d="M940 240 V846"/>
+
+  <rect class="client" x="260" y="166" width="280" height="74" rx="10"/>
+  <text class="t-client" x="400" y="198" text-anchor="middle">Client app</text>
+  <text class="s-client" x="400" y="222" text-anchor="middle">Launches and sends requests</text>
+  <rect class="analyzer" x="800" y="166" width="280" height="74" rx="10"/>
+  <text class="t-light" x="940" y="198" text-anchor="middle">Analyzer</text>
+  <text class="s-light" x="940" y="222" text-anchor="middle">One process per variant</text>
+
+  <path class="req" d="M400 336 H934" marker-end="url(#req)"/>
+  <text class="msg" x="670" y="326" text-anchor="middle">launch with command line</text>
+  <path class="out" d="M940 378 H406" marker-end="url(#out)"/>
+  <text class="msg-sub" x="670" y="368" text-anchor="middle">[dfr] ready {"api_version": ...}</text>
+  <path class="req" d="M400 412 H934" marker-end="url(#req)"/>
+  <text class="msg" x="670" y="402" text-anchor="middle">{"preload": true}</text>
+  <path class="out" d="M940 446 H406" marker-end="url(#out)"/>
+  <text class="msg-sub" x="670" y="436" text-anchor="middle">[dfr] preloaded</text>
+
+  <path class="req" d="M400 546 H934" marker-end="url(#req)"/>
+  <text class="msg" x="670" y="536" text-anchor="middle">{"presegment": true, ...}</text>
+  <path class="out" d="M940 582 H406" marker-end="url(#out)"/>
+  <text class="msg-sub" x="670" y="572" text-anchor="middle">[dfr] presegmented {...}  one line per foot</text>
+
+  <path class="req" d="M400 686 H934" marker-end="url(#req)"/>
+  <text class="msg" x="670" y="676" text-anchor="middle">analysis request, one JSON line</text>
+  <path class="out" d="M940 724 H406" marker-end="url(#out)"/>
+  <text class="msg-sub" x="670" y="714" text-anchor="middle">[0/5] ... [5/5]  progress lines</text>
+  <path class="out" d="M940 762 H406" marker-end="url(#out)"/>
+  <text class="msg-sub" x="670" y="752" text-anchor="middle">[dfr] done {"ok": true, "error": ""}</text>
+  <path class="out" d="M940 800 H406" marker-end="url(#out)"/>
+  <text class="msg-sub" x="670" y="790" text-anchor="middle">[dfr] figures {...}</text>
+
+  <rect class="group" x="170" y="872" width="940" height="110" rx="16"/>
+  <text class="group-label" x="196" y="906">Result files in the recording folder</text>
+  <text class="legend" x="1084" y="906" text-anchor="end">written by the analyzer, read by the client app</text>
+  <rect class="file" x="196" y="922" width="210" height="40" rx="8"/>
+  <text class="chip" x="301" y="947" text-anchor="middle">&lt;name&gt;_summary.json</text>
+  <rect class="file" x="418" y="922" width="222" height="40" rx="8"/>
+  <text class="chip" x="529" y="947" text-anchor="middle">&lt;name&gt;_perfusion.npz</text>
+  <rect class="file" x="652" y="922" width="222" height="40" rx="8"/>
+  <text class="chip" x="763" y="947" text-anchor="middle">&lt;name&gt;_waveforms.npz</text>
+  <rect class="file" x="886" y="922" width="198" height="40" rx="8"/>
+  <text class="chip" x="985" y="947" text-anchor="middle">GIF, PNG, report</text>
+
+  <path class="req" d="M170 1016 H210" marker-end="url(#req)"/>
+  <text class="legend" x="222" y="1021">sent by the client app (stdin JSON line)</text>
+  <path class="out" d="M520 1016 H560" marker-end="url(#out)"/>
+  <text class="legend" x="572" y="1021">stdout lines from the analyzer</text>
+</svg>
+</body>
+</html>
