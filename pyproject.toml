@@ -1,0 +1,14 @@
+[tool.ruff]
+target-version = "py39"
+
+[tool.ruff.lint]
+# E, W: pycodestyle 오류와 경고, F: pyflakes(안 쓰는 import와 변수, 정의되지 않은 이름),
+# B: bugbear(except 안의 raise 연결, 변경 가능한 기본 인자 등 실수 유발 패턴),
+# I: import 정렬, UP: 파이썬 3.9 기준으로 낡은 문법
+select = ["E", "F", "W", "B", "I", "UP"]
+ignore = [
+    # 한글을 두 칸으로 세어 줄 길이가 글자 수와 맞지 않고, formatter 없이는 자동으로 고쳐지지 않아 끕니다
+    "E501",
+    # 확인 도구와 가짜 분석 프로그램의 메시지가 모두 % 서식이고 99곳이라 f-string 변환은 동작 변경 위험 대비 이득이 없어 끕니다
+    "UP031",
+]
