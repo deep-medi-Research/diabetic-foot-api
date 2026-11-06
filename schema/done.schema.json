@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "[dfr] done 줄의 JSON",
+  "description": "값은 모두 문자열, 숫자, 참거짓, null입니다. 객체나 배열 값은 없습니다.",
+  "type": "object",
+  "required": ["ok", "error"],
+  "properties": {
+    "ok": {"type": "boolean"},
+    "error": {"type": "string"}
+  },
+  "additionalProperties": {"type": ["string", "number", "boolean", "null"]},
+  "if": {"properties": {"ok": {"const": false}}},
+  "then": {"properties": {"error": {"minLength": 1}}}
+}

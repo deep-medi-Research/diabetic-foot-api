@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "[dfr] prestreamed 줄의 JSON",
+  "type": "object",
+  "required": ["video", "ok"],
+  "properties": {
+    "video": {"type": "string"},
+    "ok": {"type": "boolean"},
+    "frames": {"type": "integer", "minimum": 0},
+    "error": {"type": ["string", "null"]},
+    "reason": {
+      "enum": [null, "cancelled", "file_not_created", "open_failed", "not_30fps", "first_frame_unreadable",
+               "no_presegment", "error"]
+    },
+    "read_s": {"type": ["number", "null"]},
+    "seg_wait_s": {"type": ["number", "null"]}
+  },
+  "if": {"properties": {"ok": {"const": false}}},
+  "then": {"required": ["reason"], "properties": {"reason": {"type": "string"}}}
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "[dfr] presegmented 줄의 JSON",
+  "type": "object",
+  "required": ["ok"],
+  "properties": {
+    "ok": {"type": "boolean"},
+    "video": {"type": "string"},
+    "waited_s": {"type": "number", "minimum": 0},
+    "seconds": {"type": "number", "minimum": 0},
+    "found": {"type": "boolean"},
+    "error": {"type": "string"},
+    "reason": {"enum": ["first_frame_unreadable", "error"]}
+  },
+  "if": {"properties": {"ok": {"const": true}}},
+  "then": {"required": ["video", "waited_s", "seconds", "found"]},
+  "else": {"required": ["error"]}
+}
